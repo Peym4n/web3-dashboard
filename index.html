@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sepolia Web3 Dashboard</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: '#0f172a',
+                        darker: '#020617',
+                        brand: '#3b82f6',
+                        brandglow: 'rgba(59, 130, 246, 0.5)'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: radial-gradient(circle at top left, #1e293b, #020617);
+            color: #e2e8f0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+        }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            box-shadow: 0 0 15px var(--tw-colors-brandglow);
+            transform: translateY(-2px);
+        }
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4">
+    <div class="max-w-5xl w-full">
+        
+        <header class="text-center mb-12 mt-8">
+            <h1 class="text-5xl font-extrabold tracking-tight mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-500">
+                Sepolia Web3 Dashboard
+            </h1>
+            <p class="text-slate-400 text-lg">Blockchain Interaction Portal</p>
+            <div id="walletStatus" class="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800/50 border border-slate-700 text-sm">
+                <div class="w-2 h-2 rounded-full bg-red-500" id="statusIndicator"></div>
+                <span id="statusText">Wallet Not Connected</span>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            
+            <div class="glass-panel rounded-2xl p-6 flex flex-col items-center text-center transform transition duration-300 hover:scale-105">
+                <div class="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center mb-4 text-blue-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                </div>
+                <h2 class="text-xl font-semibold mb-2">Block Height</h2>
+                <p class="text-slate-400 text-sm mb-6 flex-grow">Fetch the latest block number on the Sepolia Testnet.</p>
+                <div class="text-4xl font-bold text-white mb-4 h-12 flex items-center justify-center" id="blockResult">--</div>
+                <button id="btnBlock" class="btn-primary w-full py-3 rounded-xl font-medium text-white shadow-lg">Get Block Height</button>
+            </div>
+
+            <div class="glass-panel rounded-2xl p-6 flex flex-col items-center text-center transform transition duration-300 hover:scale-105">
+                <div class="w-12 h-12 rounded-full bg-indigo-500/20 flex items-center justify-center mb-4 text-indigo-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <h2 class="text-xl font-semibold mb-2">Token Balance</h2>
+                <p class="text-slate-400 text-sm mb-6 flex-grow">Query the ERC20 token balance for the connected address.</p>
+                <div class="text-4xl font-bold text-white mb-4 h-12 flex items-center justify-center" id="balanceResult">--</div>
+                <button id="btnBalance" class="btn-primary w-full py-3 rounded-xl font-medium text-white shadow-lg">Check Balance</button>
+            </div>
+
+            <div class="glass-panel rounded-2xl p-6 flex flex-col items-center text-center transform transition duration-300 hover:scale-105">
+                <div class="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center mb-4 text-purple-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
+                </div>
+                <h2 class="text-xl font-semibold mb-2">Transfer Tokens</h2>
+                <p class="text-slate-400 text-sm mb-6 flex-grow">Send 10 tokens to the required evaluation address.</p>
+                <div class="text-sm font-medium text-slate-300 mb-4 h-12 flex items-center text-center justify-center px-2" id="transferResult">Ready to initiate transfer</div>
+                <button id="btnTransfer" class="btn-primary w-full py-3 rounded-xl font-medium text-white shadow-lg">Send 10 Tokens</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.11.1/ethers.umd.min.js"></script>
+    
+    <script>
+        // The address of the deployed ERC20 Token on Sepolia
+        const CONTRACT_ADDRESS = "0x746ADFca0C4bb49C940f1303B290C6Ef296Dc337";
+        
+        // Target evaluation address
+        const TARGET_ADDRESS = "0x15433DA387451F9dE4565280C85506CB71aF9376";
+
+        const ERC20_ABI = [
+            "function balanceOf(address owner) view returns (uint256)",
+            "function transfer(address to, uint256 amount) returns (bool)"
+        ];
+
+        let provider;
+        let signer;
+        let contract;
+
+        const statusIndicator = document.getElementById('statusIndicator');
+        const statusText = document.getElementById('statusText');
+        
+        async function connectWallet() {
+            if (!window.ethereum) {
+                alert("MetaMask is not installed.");
+                return false;
+            }
+            try {
+                // Listen for network changes and automatically refresh the page
+                window.ethereum.on('chainChanged', () => {
+                    window.location.reload();
+                });
+                // Listen for account changes and automatically refresh
+                window.ethereum.on('accountsChanged', () => {
+                    window.location.reload();
+                });
+
+                provider = new ethers.BrowserProvider(window.ethereum);
+                signer = await provider.getSigner();
+                contract = new ethers.Contract(CONTRACT_ADDRESS, ERC20_ABI, signer);
+                
+                statusIndicator.classList.replace('bg-red-500', 'bg-green-500');
+                const address = await signer.getAddress();
+                statusText.innerText = `Connected: ${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
+                return true;
+            } catch (error) {
+                console.error("Connection error:", error);
+                alert("Failed to connect to wallet.");
+                return false;
+            }
+        }
+
+        document.getElementById('btnBlock').addEventListener('click', async () => {
+            const btn = document.getElementById('btnBlock');
+            btn.innerText = "Fetching...";
+            try {
+                if(!provider) {
+                     provider = new ethers.BrowserProvider(window.ethereum);
+                }
+                const blockNumber = await provider.getBlockNumber();
+                document.getElementById('blockResult').innerText = blockNumber.toLocaleString();
+            } catch (error) {
+                alert("Error fetching block: " + error.message);
+            }
+            btn.innerText = "Get Block Height";
+        });
+
+        document.getElementById('btnBalance').addEventListener('click', async () => {
+            if (!signer) {
+                const connected = await connectWallet();
+                if(!connected) return;
+            }
+            
+            const btn = document.getElementById('btnBalance');
+            btn.innerText = "Checking...";
+            try {
+                const address = await signer.getAddress();
+                const balanceWei = await contract.balanceOf(address);
+                const balanceEth = ethers.formatUnits(balanceWei, 18);
+                document.getElementById('balanceResult').innerText = parseFloat(balanceEth).toFixed(2);
+            } catch (error) {
+                alert("Error getting balance: " + error.message);
+            }
+            btn.innerText = "Check Balance";
+        });
+
+        document.getElementById('btnTransfer').addEventListener('click', async () => {
+            if (!signer) {
+                const connected = await connectWallet();
+                if(!connected) return;
+            }
+
+            const btn = document.getElementById('btnTransfer');
+            const res = document.getElementById('transferResult');
+            
+            btn.innerText = "Confirm in Wallet...";
+            res.innerText = "Please approve the transaction...";
+            res.className = "text-sm font-medium text-yellow-400 mb-4 h-12 flex items-center text-center justify-center px-2";
+
+            try {
+                const amount = ethers.parseUnits("10", 18);
+                const tx = await contract.transfer(TARGET_ADDRESS, amount);
+                
+                res.innerText = "Transaction broadcasted! Waiting for block confirmation...";
+                btn.innerText = "Processing Tx...";
+                
+                await tx.wait();
+                
+                res.innerText = "Success! 10 Tokens transferred.";
+                res.className = "text-sm font-medium text-green-400 mb-4 h-12 flex items-center text-center justify-center px-2";
+            } catch (error) {
+                console.error(error);
+                res.innerText = "Transaction failed or rejected.";
+                res.className = "text-sm font-medium text-red-400 mb-4 h-12 flex items-center text-center justify-center px-2";
+            }
+            btn.innerText = "Send 10 Tokens";
+        });
+    </script>
+</body>
+</html>
